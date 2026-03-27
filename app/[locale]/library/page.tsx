@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { useRouter, Link } from "@/i18n/navigation";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface GameDetails {
   appid: number;
@@ -42,8 +44,8 @@ interface SteamGame {
   playtime_forever: number;
 }
 
-function formatPlaytime(minutes: number): string {
-  if (minutes === 0) return "Jamais joué";
+function formatPlaytime(minutes: number, neverPlayed: string): string {
+  if (minutes === 0) return neverPlayed;
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   if (h === 0) return `${m} min`;
@@ -59,6 +61,7 @@ function scoreColor(score: number | null): string {
 
 export default function LibraryPage() {
   const router = useRouter();
+  const t = useTranslations("library");
   const [result, setResult] = useState<RandomResult | null>(null);
   const [games, setGames] = useState<SteamGame[]>([]);
   const [search, setSearch] = useState("");
@@ -78,8 +81,8 @@ export default function LibraryPage() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setResult(data);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoadingRandom(false);
     }
@@ -104,40 +107,43 @@ export default function LibraryPage() {
     g.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const neverPlayed = t("neverPlayed");
+
   return (
     <main className="min-h-screen bg-[#0f1117] text-white">
 
       <header className="bg-[#0f1117] border-b border-gray-800 px-6 py-4 flex items-center gap-4">
-        <a href="/" className="text-gray-400 hover:text-white transition-colors text-sm">
-          {"<-"} Accueil
-        </a>
+        <Link href="/" className="text-gray-400 hover:text-white transition-colors text-sm">
+          {t("backHome")}
+        </Link>
         <h1 className="text-xl font-bold">🎮 Backlog Killer</h1>
+        <div className="ml-auto">
+          <LanguageSwitcher />
+        </div>
       </header>
 
       <div className="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-200">Fiche découverte</h2>
+            <h2 className="text-lg font-semibold text-gray-200">{t("discoverySheet")}</h2>
             <button
               onClick={fetchRandom}
               disabled={loadingRandom}
               className="text-sm text-blue-400 hover:text-blue-300 border border-blue-800 hover:border-blue-600 px-3 py-1 rounded-lg transition-colors disabled:opacity-40"
             >
-              🎲 Autre jeu
+              {t("anotherGame")}
             </button>
           </div>
 
           {loadingRandom ? (
             <div className="bg-[#1a1f2e] rounded-2xl h-96 flex items-center justify-center">
-              <p className="text-gray-500 animate-pulse">Tirage en cours...</p>
+              <p className="text-gray-500 animate-pulse">{t("drawing")}</p>
             </div>
           ) : error ? (
             <div className="bg-red-950 border border-red-800 rounded-2xl p-6 text-center">
               <p className="text-red-400 mb-2">⚠️ {error}</p>
-              <p className="text-gray-500 text-sm">
-                Vérifie que ton profil Steam est bien en mode Public.
-              </p>
+              <p className="text-gray-500 text-sm">{t("steamPublicWarning")}</p>
             </div>
           ) : result ? (
             <div className="bg-[#1a1f2e] rounded-2xl overflow-hidden border border-gray-800">
@@ -155,9 +161,7 @@ export default function LibraryPage() {
               <div className="p-5 space-y-4">
 
                 <div>
-                  <h3 className="text-2xl font-bold text-white">
-                    {result.game.name}
-                  </h3>
+                  <h3 className="text-2xl font-bold text-white">{result.game.name}</h3>
                   <p className="text-gray-500 text-sm mt-1">
                     {result.game.developers.join(", ")} · {result.game.releaseDate}
                   </p>
@@ -195,14 +199,14 @@ export default function LibraryPage() {
                     <p className="text-2xl font-bold text-white">
                       {result.hltb.mainStory ? `${result.hltb.mainStory}h` : "—"}
                     </p>
-                    <p className="text-gray-500 text-xs mt-1">Histoire</p>
+                    <p className="text-gray-500 text-xs mt-1">{t("story")}</p>
                   </div>
 
                   <div className="bg-[#0f1117] rounded-xl p-3 text-center">
                     <p className="text-2xl font-bold text-blue-400">
-                      {formatPlaytime(result.game.playtimeForever)}
+                      {formatPlaytime(result.game.playtimeForever, neverPlayed)}
                     </p>
-                    <p className="text-gray-500 text-xs mt-1">Ton temps</p>
+                    <p className="text-gray-500 text-xs mt-1">{t("yourTime")}</p>
                   </div>
                 </div>
 
@@ -210,16 +214,16 @@ export default function LibraryPage() {
                   onClick={fetchRandom}
                   className="w-full bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold text-lg py-4 rounded-xl transition-all duration-150"
                 >
-                  🎲 Nouveau tirage
+                  {t("newDraw")}
                 </button>
 
-                
-                  <a href={`https://store.steampowered.com/app/${result.game.appid}`}
+                <a
+                  href={`https://store.steampowered.com/app/${result.game.appid}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block text-center text-gray-500 hover:text-gray-300 text-sm transition-colors"
                 >
-                  Voir sur Steam Store
+                  {t("viewOnSteam")}
                 </a>
 
               </div>
@@ -230,10 +234,10 @@ export default function LibraryPage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-200">
-              Ta bibliothèque
+              {t("yourLibrary")}
               {result && (
                 <span className="text-gray-500 font-normal text-sm ml-2">
-                  ({result.totalGames} jeux)
+                  ({t("games", { count: result.totalGames })})
                 </span>
               )}
             </h2>
@@ -241,7 +245,7 @@ export default function LibraryPage() {
 
           <input
             type="text"
-            placeholder="🔍 Rechercher un jeu..."
+            placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-[#1a1f2e] border border-gray-700 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm mb-4 outline-none focus:border-blue-600 transition-colors"
@@ -250,7 +254,7 @@ export default function LibraryPage() {
           <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
             {loadingLibrary ? (
               <div className="text-gray-500 text-sm text-center py-8 animate-pulse">
-                Chargement de ta bibliothèque...
+                {t("loadingLibrary")}
               </div>
             ) : (
               filteredGames.map((game) => (
@@ -271,7 +275,7 @@ export default function LibraryPage() {
                       {game.name}
                     </p>
                     <p className="text-gray-600 text-xs">
-                      {formatPlaytime(game.playtime_forever)}
+                      {formatPlaytime(game.playtime_forever, neverPlayed)}
                     </p>
                   </div>
                 </div>
@@ -279,7 +283,7 @@ export default function LibraryPage() {
             )}
             {!loadingLibrary && filteredGames.length === 0 && (
               <p className="text-gray-500 text-sm text-center py-8">
-                Aucun jeu trouvé pour &quot;{search}&quot;
+                {t("noGamesFound", { search })}
               </p>
             )}
           </div>

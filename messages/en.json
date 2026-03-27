@@ -1,0 +1,39 @@
+{
+  "common": {
+    "appName": "Backlog Killer",
+    "loading": "Loading..."
+  },
+  "home": {
+    "taglineLoggedIn": "{name}, there's surely a masterpiece waiting for you.",
+    "taglineGuest": "Rediscover the games gathering dust in your Steam library.",
+    "connectedViaSteam": "Connected via Steam",
+    "logout": "Sign out",
+    "randomGame": "🎲 Random game!",
+    "viewLibrary": "View my full library →",
+    "loginWithSteam": "Sign in with Steam"
+  },
+  "library": {
+    "backHome": "← Home",
+    "discoverySheet": "Discovery Sheet",
+    "anotherGame": "🎲 Another game",
+    "drawing": "Picking a game...",
+    "steamPublicWarning": "Make sure your Steam profile is set to Public.",
+    "story": "Story",
+    "yourTime": "Your time",
+    "newDraw": "🎲 New pick",
+    "viewOnSteam": "View on Steam Store",
+    "yourLibrary": "Your library",
+    "games": "{count} games",
+    "searchPlaceholder": "🔍 Search a game...",
+    "loadingLibrary": "Loading your library...",
+    "noGamesFound": "No games found for \"{search}\"",
+    "neverPlayed": "Never played"
+  },
+  "onboarding": {
+    "backLink": "← Back",
+    "title": "🎮 Backlog Killer",
+    "welcome": "Welcome, {name}!",
+    "subtitle": "Your Steam library is ready to be explored.",
+    "cta": "🎲 Discover a game"
+  }
+}

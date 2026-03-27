@@ -1,0 +1,39 @@
+{
+  "common": {
+    "appName": "Backlog Killer",
+    "loading": "Cargando..."
+  },
+  "home": {
+    "taglineLoggedIn": "{name}, seguramente hay una obra maestra esperándote.",
+    "taglineGuest": "Redescubre los juegos acumulando polvo en tu biblioteca de Steam.",
+    "connectedViaSteam": "Conectado via Steam",
+    "logout": "Cerrar sesión",
+    "randomGame": "🎲 ¡Juego aleatorio!",
+    "viewLibrary": "Ver mi biblioteca completa →",
+    "loginWithSteam": "Iniciar sesión con Steam"
+  },
+  "library": {
+    "backHome": "← Inicio",
+    "discoverySheet": "Ficha de descubrimiento",
+    "anotherGame": "🎲 Otro juego",
+    "drawing": "Eligiendo un juego...",
+    "steamPublicWarning": "Asegúrate de que tu perfil de Steam esté configurado como Público.",
+    "story": "Historia",
+    "yourTime": "Tu tiempo",
+    "newDraw": "🎲 Nueva elección",
+    "viewOnSteam": "Ver en Steam Store",
+    "yourLibrary": "Tu biblioteca",
+    "games": "{count} juegos",
+    "searchPlaceholder": "🔍 Buscar un juego...",
+    "loadingLibrary": "Cargando tu biblioteca...",
+    "noGamesFound": "No se encontraron juegos para \"{search}\"",
+    "neverPlayed": "Nunca jugado"
+  },
+  "onboarding": {
+    "backLink": "← Volver",
+    "title": "🎮 Backlog Killer",
+    "welcome": "¡Bienvenido, {name}!",
+    "subtitle": "Tu biblioteca de Steam está lista para ser explorada.",
+    "cta": "🎲 Descubrir un juego"
+  }
+}

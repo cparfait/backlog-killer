@@ -26,7 +26,7 @@ Fini le syndrome de la page blanche devant votre bibliothèque de jeux ! Backlog
 
 1. **Cloner le dépôt**
    ```bash
-   git clone [https://github.com/cparfait/backlog-killer.git](https://github.com/cparfait/backlog-killer.git)
+   git clone https://github.com/cparfait/backlog-killer.git
    cd backlog-killer
    ```
 

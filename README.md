@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🎮 Backlog Killer
+Application destinée aux joueurs possédant une liste de jeux (backlog) interminable. Ajoutez vos jeux, faites évoluer votre profil, gagnez de l'expérience et débloquez des succès pour vous motiver à vider votre pile !
 
-## Getting Started
+🛠️ Stack Technique
+Frontend : React, Vite, TypeScript, Tailwind CSS, Lucide Icons
+Backend : Node.js, Express, TypeScript
+Base de données : SQLite via Prisma ORM
+Authentification : JWT (JSON Web Tokens)
+API Externe : Twitch/IGDB (pour la recherche de jeux)
+🚀 Installation en local
+Prérequis
+Node.js (v18 ou supérieur)
+npm
+Un compte Twitch Developer (pour récupérer un Client ID et un Client Secret afin de faire fonctionner la recherche de jeux IGDB).
+1. Cloner le dépôt
+git clone https://github.com/cparfait/backlog-killer.gitcd backlog-killer
+2. Installer les dépendances
+Le projet utilise des workspaces npm, une seule commande suffit à la racine :
 
-First, run the development server:
+bash
 
-```bash
+npm install
+3. Configurer les variables d'environnement
+Renommez le fichier .env.example en .env à la racine du projet et remplissez les valeurs :
+
+env
+
+# Authentification
+JWT_SECRET=your_super_secret_jwt_key_here
+
+# API Twitch / IGDB (Obligatoire pour chercher un jeu)
+TWITCH_CLIENT_ID=votre_client_id
+TWITCH_CLIENT_SECRET=votre_client_secret
+4. Initialiser la base de données
+Le projet utilise SQLite et Prisma. Pour créer les tables et la base dev.db :
+
+bash
+
+npx prisma migrate dev --name init
+5. Lancer l'application
+Démarrez le frontend et le backend simultanément en mode développement :
+
+bash
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🌐 Frontend : http://localhost:5173
+⚙️ Backend (API) : http://localhost:3000
+(Note : Un utilisateur de test est créé automatiquement au lancement du backend avec l'email test@test.com et le mot de passe password)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+✨ Fonctionnalités
+🔐 Authentification sécurisée : Inscription et connexion avec hashage des mots de passe (Bcrypt) et tokens JWT.
+🔍 Recherche de jeux : Recherche automatique via l'API IGDB (Titre, jaquette, date de sortie, plateformes).
+📚 Gestion du Backlog : Ajout des jeux avec statuts précis (PLAYING, FINISHED, ABANDONED, WISHLIST).
+📈 Système de Niveaux (XP) : Gagnez de l'expérience en terminant ou en abandonnant des jeux pour faire monter votre niveau.
+🏆 Succès (Badges) : Déblocage automatique de badges selon vos actions (ex: Premier abandon, Premier jeu fini, Premier wish, Collectionneur).
+🗑️ Suppression : Possibilité de retirer un jeu de sa liste.
+🏗️ Structure du projet
+text
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+backlog-killer/
+├── packages/
+│   ├── frontend/       # Application React (Vite + Tailwind)
+│   └── backend/        # API REST (Express + Prisma)
+├── .env.example        # Variables d'environnement à copier
+├── package.json        # Configuration npm workspaces
+└── README.md
+📜 Licence
+Ce projet est sous licence MIT.

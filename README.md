@@ -28,10 +28,6 @@ env
 # Authentification
 JWT_SECRET=your_super_secret_jwt_key_here
 
-# API Twitch / IGDB (Obligatoire pour chercher un jeu)
-TWITCH_CLIENT_ID=votre_client_id
-TWITCH_CLIENT_SECRET=votre_client_secret
-4. Initialiser la base de données
 Le projet utilise SQLite et Prisma. Pour créer les tables et la base dev.db :
 
 bash

@@ -1,10 +1,6 @@
-// app/api/library/random/route.ts
+// app/api/library/duel/route.ts
 //
-// Tire un jeu au hasard dans la bibliothèque Steam, avec filtres
-// optionnels :
-//   ?unplayed=1       → uniquement les jeux jamais joués
-//   ?maxHours=2       → HLTB main story <= 2h ("ce soir") / <= 10h ("court")
-//   ?minScore=80      → OpenCritic >= 80 ("bien noté")
+// Tire DEUX jeux au hasard pour permettre à l'utilisateur de choisir.
 
 import { NextRequest, NextResponse } from "next/server";
 import { getIronSession } from "iron-session";
@@ -40,7 +36,7 @@ export async function GET(request: NextRequest) {
   try {
     games = await getOwnedGames(session.steamid);
   } catch (error) {
-    console.error("[random] getOwnedGames failed:", error);
+    console.error("[duel] getOwnedGames failed:", error);
     return NextResponse.json(
       {
         error: "Bibliothèque inaccessible — profil probablement privé",
@@ -51,29 +47,33 @@ export async function GET(request: NextRequest) {
   }
 
   const pool = applyPreFilters(games, filters);
-  if (pool.length === 0) {
+  if (pool.length < 2) {
     return NextResponse.json(
       {
-        error: "Aucun jeu ne correspond aux filtres",
+        error: "Pas assez de jeux pour un duel avec ces filtres",
         code: "no_match",
       },
       { status: 404 }
     );
   }
 
-  const drawn = await drawOne(pool, filters);
-  if (!drawn) {
+  const first = await drawOne(pool, filters);
+  if (!first) {
     return NextResponse.json(
-      {
-        error: "Aucun jeu trouvé qui respecte tes filtres après plusieurs essais",
-        code: "no_match",
-      },
+      { error: "Aucun jeu trouvé", code: "no_match" },
+      { status: 404 }
+    );
+  }
+  const second = await drawOne(pool, filters, new Set([first.game.appid]));
+  if (!second) {
+    return NextResponse.json(
+      { error: "Un seul jeu trouvé pour le duel", code: "no_match" },
       { status: 404 }
     );
   }
 
   return NextResponse.json({
-    ...drawn,
+    contenders: [first, second],
     totalGames: games.length,
     poolSize: pool.length,
   });

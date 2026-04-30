@@ -33,6 +33,12 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local config (clé API Steam, secret de session) — ne JAMAIS commiter
+.local-config.json
+
+# Claude Code local settings
+.claude/
+
 # vercel
 .vercel
 

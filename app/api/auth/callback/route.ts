@@ -1,58 +1,60 @@
 // app/api/auth/callback/route.ts
 //
-// Steam redirige l'utilisateur ici après qu'il s'est connecté.
-// L'URL contient une "assertion" OpenID : une affirmation signée
-// par Steam qui dit "cet utilisateur est bien SteamID XXXXXXX".
-// On vérifie cette affirmation, puis on récupère le profil Steam,
-// et enfin on crée une session cookie pour l'utilisateur.
+// Steam redirige l'utilisateur ici avec une assertion OpenID signée.
+// On vérifie l'assertion auprès de Steam, on récupère le profil,
+// puis on crée une session cookie chiffrée.
 
 import { NextRequest, NextResponse } from "next/server";
-import { relyingParty, extractSteamId } from "@/lib/steam/steamProvider";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SessionData, sessionOptions } from "@/lib/session";
+import { verifySteamAssertion } from "@/lib/steam/steamProvider";
+import { getSteamApiKey } from "@/lib/localConfig";
+import { getSteamProfile } from "@/lib/steam/steamApi";
 
 export async function GET(request: NextRequest) {
-  const url = request.url;
+  let steamId: string | null;
+  try {
+    steamId = await verifySteamAssertion(request.nextUrl.searchParams);
+  } catch (e) {
+    console.error("[steam-auth] verification error:", e);
+    return NextResponse.redirect(new URL("/?error=auth", request.url));
+  }
 
-  return new Promise<NextResponse>(async (resolve) => {
-    // verifyAssertion vérifie auprès de Steam que l'assertion est valide
-    relyingParty.verifyAssertion(url, async (error, result) => {
-      if (error || !result?.authenticated) {
-        resolve(NextResponse.redirect(new URL("/?error=auth", request.url)));
-        return;
-      }
+  if (!steamId) {
+    return NextResponse.redirect(new URL("/?error=auth", request.url));
+  }
 
-      // On extrait le SteamID64 depuis l'URL claim vérifiée
-      const steamId = extractSteamId(result.claimedIdentifier ?? "");
-      if (!steamId) {
-        resolve(NextResponse.redirect(new URL("/?error=steamid", request.url)));
-        return;
-      }
+  // Si la clé API n'est pas configurée, on envoie au setup
+  if (!getSteamApiKey()) {
+    return NextResponse.redirect(new URL("/setup", request.url));
+  }
 
-      // On récupère le profil Steam via l'API Web Steam
-      const apiKey = process.env.STEAM_API_KEY;
-      const profileRes = await fetch(
-        `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${steamId}`
-      );
-      const profileData = await profileRes.json();
-      const player = profileData.response.players[0];
+  let profile = null;
+  try {
+    profile = await getSteamProfile(steamId);
+  } catch (e) {
+    console.error("[steam-auth] profile fetch failed:", e);
+  }
 
-      // On crée la session : on stocke les infos dans un cookie chiffré
-      const session = await getIronSession<SessionData>(
-        await cookies(),
-        sessionOptions
-      );
-      session.steamid = steamId;
-      session.name = player.personaname;
-      session.avatar = player.avatarfull;
-      session.profileurl = player.profileurl;
-      session.isLoggedIn = true;
-      await session.save();
+  if (!profile?.personaname) {
+    console.warn(
+      "[steam-auth] profil Steam vide pour",
+      steamId,
+      "— vérifie la clé API et la confidentialité du profil."
+    );
+  }
 
-      // Redirige vers l'onboarding si première connexion,
-      // sinon directement vers la bibliothèque
-      resolve(NextResponse.redirect(new URL("/onboarding", request.url)));
-    });
-  });
+  const session = await getIronSession<SessionData>(
+    await cookies(),
+    sessionOptions
+  );
+  session.steamid = steamId;
+  session.name = profile?.personaname || "";
+  session.avatar = profile?.avatarfull || "";
+  session.profileurl = profile?.profileurl || "";
+  session.isLoggedIn = true;
+  await session.save();
+
+  return NextResponse.redirect(new URL("/onboarding", request.url));
 }

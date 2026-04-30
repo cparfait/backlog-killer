@@ -1,13 +1,10 @@
 // lib/session.ts
 //
-// Définit la structure et la configuration de notre session cookie.
-// iron-session chiffre les données dans un cookie HTTP-only :
-// le contenu est illisible depuis JavaScript côté client,
-// ce qui empêche le vol de session via XSS.
+// Configuration de la session iron-session : cookie HTTP-only chiffré.
 
 import { SessionOptions } from "iron-session";
+import { getSessionSecret } from "./localConfig";
 
-// Structure des données qu'on stocke en session
 export interface SessionData {
   steamid: string;
   name: string;
@@ -16,15 +13,18 @@ export interface SessionData {
   isLoggedIn: boolean;
 }
 
+// Évalué à l'usage (pas à l'import) pour ne pas crasher le serveur
+// si la config locale n'a pas encore été initialisée.
 export const sessionOptions: SessionOptions = {
-  // Clé de chiffrement — doit faire au moins 32 caractères
-  password: process.env.NEXTAUTH_SECRET as string,
-  // Nom du cookie dans le navigateur
+  get password() {
+    return getSessionSecret();
+  },
   cookieName: "backlog-killer-session",
   cookieOptions: {
-    // secure: true en production (HTTPS), false en local (HTTP)
     secure: process.env.NODE_ENV === "production",
-    httpOnly: true,   // Inaccessible depuis JavaScript côté client
-    sameSite: "lax",  // Protection CSRF
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7, // 7 jours
   },
-};
+} as SessionOptions;

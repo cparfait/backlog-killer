@@ -201,7 +201,7 @@ function GameCard({
       }`}
     >
       {/* ── Hero : trailer ou jaquette ── */}
-      <div className="relative w-full aspect-[460/215] bg-black">
+      <div className="relative w-full h-40 bg-black">
         {showVideo && (trailerMp4 || trailerWebm) ? (
           <video
             poster={toHttps(trailer?.thumbnail)}

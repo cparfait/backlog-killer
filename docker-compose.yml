@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - STEAM_API_KEY=${STEAM_API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - APP_BASE_URL=${APP_BASE_URL}
+    networks:
+      - npm_network
+
+networks:
+  npm_network:
+    external: true
+    name: npm_default

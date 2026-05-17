@@ -101,7 +101,7 @@ export function GameCard({
           : "border-zinc-800 shadow-xl shadow-black/40"
       }`}
     >
-      <div className="relative w-full aspect-[460/215] bg-black">
+      <div className="relative w-full h-40 bg-black">
         {showVideo && (trailerMp4 || trailerWebm) ? (
           <video
             poster={toHttps(trailer?.thumbnail)}
